@@ -39,25 +39,18 @@ namespace WebViewAndHtmlExport
 
         async void ShareButton_Clicked(object sender, EventArgs e)
         {
-            using (var indicator = ActivityIndicatorPopup.Create())
+            if (await webView.ToPdfAsync("output.pdf") is ToFileResult pdfResult)
             {
-                if (await webView.ToPdfAsync("output.pdf") is ToFileResult pdfResult)
-                {
-                    await indicator.PopAsync();
-
-                    if (pdfResult.IsError)
-                        using (Toast.Create("PDF Failure", pdfResult.Result)) { }
-                    else
-                    {
-                        var collection = new Forms9Patch.MimeItemCollection();
-                        collection.AddBytesFromFile("application/pdf", pdfResult.Result);
-                        Forms9Patch.Sharing.Share(collection, shareButton);
-                    }
-                }
+                if (pdfResult.IsError)
+                    using (Toast.Create("PDF Failure", pdfResult.Result)) { }
                 else
-                    await indicator.PopAsync();
-
+                {
+                    var collection = new Forms9Patch.MimeItemCollection();
+                    collection.AddBytesFromFile("application/pdf", pdfResult.Result);
+                    Forms9Patch.Sharing.Share(collection, shareButton);
+                }
             }
         }
     }
 }
+
