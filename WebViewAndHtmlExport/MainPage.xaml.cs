@@ -34,22 +34,28 @@ namespace WebViewAndHtmlExport
 "
             };
 
+
             shareButton.Clicked += ShareButton_Clicked;
         }
 
         async void ShareButton_Clicked(object sender, EventArgs e)
         {
-            if (await webView.ToPdfAsync("output.pdf") is ToFileResult pdfResult)
+            if (Forms9Patch.ToPdfService.IsAvailable)
             {
-                if (pdfResult.IsError)
-                    using (Toast.Create("PDF Failure", pdfResult.Result)) { }
-                else
+                if (await webView.ToPdfAsync("output.pdf") is ToFileResult pdfResult)
                 {
-                    var collection = new Forms9Patch.MimeItemCollection();
-                    collection.AddBytesFromFile("application/pdf", pdfResult.Result);
-                    Forms9Patch.Sharing.Share(collection, shareButton);
+                    if (pdfResult.IsError)
+                        using (Toast.Create("PDF Failure", pdfResult.Result)) { }
+                    else
+                    {
+                        var collection = new Forms9Patch.MimeItemCollection();
+                        collection.AddBytesFromFile("application/pdf", pdfResult.Result);
+                        Forms9Patch.Sharing.Share(collection, shareButton);
+                    }
                 }
             }
+            else
+                using (Toast.Create(null, "PDF Export is not available on this device")) { }
         }
     }
 }
